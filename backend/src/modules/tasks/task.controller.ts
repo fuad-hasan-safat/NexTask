@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { getParamString } from "../../types/express";
 import { createTaskSchema, updateTaskSchema } from "./task.schema";
 import {
   createTask,
@@ -13,7 +14,7 @@ import { createNotification } from "../notification/notification.service";
 export const createTaskHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user || !req.orgMembership) {
@@ -21,7 +22,7 @@ export const createTaskHandler = async (
     }
 
     const { orgId } = req.orgMembership;
-    const { projectId } = req.params;
+    const projectId = getParamString(req.params.projectId)!;
 
     console.log("createTaskHandler params:", req.params); // debug
 
@@ -37,7 +38,7 @@ export const createTaskHandler = async (
 export const listTasksHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.orgMembership) {
@@ -45,7 +46,7 @@ export const listTasksHandler = async (
     }
 
     const { orgId } = req.orgMembership;
-    const { projectId } = req.params;
+    const projectId = getParamString(req.params.projectId)!;
 
     const tasks = await listTasksForProject(orgId, projectId);
 
@@ -58,7 +59,7 @@ export const listTasksHandler = async (
 export const getTaskHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.orgMembership) {
@@ -66,7 +67,8 @@ export const getTaskHandler = async (
     }
 
     const { orgId } = req.orgMembership;
-    const { projectId, taskId } = req.params;
+    const projectId = getParamString(req.params.projectId)!;
+    const taskId = getParamString(req.params.taskId)!;
 
     const task = await getTaskById(orgId, projectId, taskId);
 
@@ -79,7 +81,7 @@ export const getTaskHandler = async (
 export const updateTaskHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.orgMembership) {
@@ -87,7 +89,8 @@ export const updateTaskHandler = async (
     }
 
     const { orgId } = req.orgMembership;
-    const { projectId, taskId } = req.params;
+    const projectId = getParamString(req.params.projectId)!;
+    const taskId = getParamString(req.params.taskId)!;
 
     const parsed = updateTaskSchema.parse(req.body);
 
@@ -96,7 +99,7 @@ export const updateTaskHandler = async (
       projectId,
       taskId,
       req.user!.userId,
-      parsed
+      parsed,
     );
 
     // ✅ activity only if assignee was part of update payload
@@ -111,10 +114,7 @@ export const updateTaskHandler = async (
     }
 
     // ✅ notify assignee (if not self)
-    if (
-      parsed.assigneeId &&
-      parsed.assigneeId !== req.user!.userId
-    ) {
+    if (parsed.assigneeId && parsed.assigneeId !== req.user!.userId) {
       await createNotification({
         userId: parsed.assigneeId,
         orgId,
@@ -130,11 +130,10 @@ export const updateTaskHandler = async (
   }
 };
 
-
 export const deleteTaskHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.orgMembership) {
@@ -142,13 +141,14 @@ export const deleteTaskHandler = async (
     }
 
     const { orgId } = req.orgMembership;
-    const { projectId, taskId } = req.params;
+    const projectId = getParamString(req.params.projectId)!;
+    const taskId = getParamString(req.params.taskId)!;
 
     const task = await deleteTask(
       orgId,
       projectId,
       taskId,
-      req.user?.userId as string
+      req.user?.userId as string,
     );
 
     res.json({ message: "Task deleted", taskId: task._id });

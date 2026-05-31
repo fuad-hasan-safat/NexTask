@@ -1,17 +1,19 @@
 import { Request, Response, NextFunction } from "express";
-import {
-  createProjectSchema,
-  updateProjectSchema
-} from "./project.schema";
+import { getParamString } from "../../types/express";
+import { createProjectSchema, updateProjectSchema } from "./project.schema";
 import {
   createProject,
   listProjectsForOrg,
   getProjectById,
   updateProject,
-  deleteProject
+  deleteProject,
 } from "./project.service";
 
-export const createProjectHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const createProjectHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     if (!req.user || !req.orgMembership) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -28,7 +30,11 @@ export const createProjectHandler = async (req: Request, res: Response, next: Ne
   }
 };
 
-export const listProjectsHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const listProjectsHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     if (!req.orgMembership) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -43,14 +49,18 @@ export const listProjectsHandler = async (req: Request, res: Response, next: Nex
   }
 };
 
-export const getProjectHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const getProjectHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     if (!req.orgMembership) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     const { orgId } = req.orgMembership;
-    const { projectId } = req.params;
+    const projectId = getParamString(req.params.projectId)!;
 
     const project = await getProjectById(orgId, projectId);
 
@@ -60,14 +70,18 @@ export const getProjectHandler = async (req: Request, res: Response, next: NextF
   }
 };
 
-export const updateProjectHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const updateProjectHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     if (!req.orgMembership) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     const { orgId } = req.orgMembership;
-    const { projectId } = req.params;
+    const projectId = getParamString(req.params.projectId)!;
 
     const parsed = updateProjectSchema.parse(req.body);
     const project = await updateProject(orgId, projectId, parsed);
@@ -78,14 +92,18 @@ export const updateProjectHandler = async (req: Request, res: Response, next: Ne
   }
 };
 
-export const deleteProjectHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteProjectHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     if (!req.orgMembership) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     const { orgId } = req.orgMembership;
-    const { projectId } = req.params;
+    const projectId = getParamString(req.params.projectId)!;
 
     const project = await deleteProject(orgId, projectId);
 

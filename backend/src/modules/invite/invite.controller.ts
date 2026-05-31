@@ -1,26 +1,23 @@
 import { Request, Response, NextFunction } from "express";
+import { getParamString } from "../../types/express";
 import { createInviteSchema } from "./invite.schema";
 import {
   createInvite,
   listInvitesForUser,
   acceptInvite,
-  rejectInvite
+  rejectInvite,
 } from "./invite.service";
 
 export const createInviteHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    const { orgId } = req.params;
+    const orgId = getParamString(req.params.orgId)!;
     const data = createInviteSchema.parse(req.body);
 
-    const invite = await createInvite(
-      orgId,
-      req.user!.userId,
-      data
-    );
+    const invite = await createInvite(orgId, req.user!.userId, data);
 
     res.status(201).json(invite);
   } catch (err) {
@@ -31,7 +28,7 @@ export const createInviteHandler = async (
 export const listMyInvitesHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const invites = await listInvitesForUser(req.user!.email);
@@ -44,13 +41,14 @@ export const listMyInvitesHandler = async (
 export const acceptInviteHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
+    const inviteId = getParamString(req.params.inviteId)!;
     const invite = await acceptInvite(
-      req.params.inviteId,
+      inviteId,
       req.user!.userId,
-      req.user!.email
+      req.user!.email,
     );
     res.json(invite);
   } catch (err) {
@@ -61,13 +59,11 @@ export const acceptInviteHandler = async (
 export const rejectInviteHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    const invite = await rejectInvite(
-      req.params.inviteId,
-      req.user!.email
-    );
+    const inviteId = getParamString(req.params.inviteId)!;
+    const invite = await rejectInvite(inviteId, req.user!.email);
     res.json(invite);
   } catch (err) {
     next(err);

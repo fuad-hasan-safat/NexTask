@@ -2,23 +2,22 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchNotificationsApi,
   markNotificationReadApi,
-  type Notification
+  type Notification,
 } from "../../api/notificationApi";
-import { Link } from "react-router-dom";
 
 export default function NotificationsPage() {
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ["notifications"],
-    queryFn: fetchNotificationsApi
+    queryFn: fetchNotificationsApi,
   });
 
   const { mutate } = useMutation({
     mutationFn: (id: string) => markNotificationReadApi(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
-    }
+    },
   });
 
   if (isLoading) {
@@ -26,11 +25,7 @@ export default function NotificationsPage() {
   }
 
   if (!data || data.length === 0) {
-    return (
-      <div className="text-slate-400 text-sm">
-        No notifications yet
-      </div>
-    );
+    return <div className="text-slate-400 text-sm">No notifications yet</div>;
   }
 
   return (

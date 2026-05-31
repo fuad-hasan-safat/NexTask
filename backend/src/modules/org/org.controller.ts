@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { getParamString } from "../../types/express";
 import { createOrgSchema } from "./org.schema";
 import {
   createOrganization,
@@ -17,7 +18,7 @@ import { User } from "../../models/User";
 export const createOrgHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -39,7 +40,7 @@ export const createOrgHandler = async (
 export const listUserOrgsHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -56,14 +57,14 @@ export const listUserOrgsHandler = async (
 export const getOrgHandler = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const { orgId } = req.params;
+    const orgId = getParamString(req.params.orgId)!;
     const org = await getOrganizationForUser(req.user.userId, orgId);
 
     res.json(org);
@@ -73,7 +74,7 @@ export const getOrgHandler = async (
 };
 
 export const listOrgMembersHandler = async (req: Request, res: Response) => {
-  const { orgId } = req.params;
+  const orgId = getParamString(req.params.orgId)!;
 
   const members = await OrgMember.find({ orgId })
     .populate("userId", "name email")
@@ -83,7 +84,8 @@ export const listOrgMembersHandler = async (req: Request, res: Response) => {
 };
 
 export const removeOrgMemberHandler = async (req: Request, res: Response) => {
-  const { orgId, userId } = req.params;
+  const orgId = getParamString(req.params.orgId)!;
+  const userId = getParamString(req.params.userId)!;
 
   if (req.user!.userId === userId) {
     return res.status(400).json({ message: "Cannot remove yourself" });
@@ -103,7 +105,9 @@ export const removeOrgMemberHandler = async (req: Request, res: Response) => {
 };
 
 export const listTaskComments = async (req: Request, res: Response) => {
-  const { orgId, projectId, taskId } = req.params;
+  const orgId = getParamString(req.params.orgId)!;
+  const projectId = getParamString(req.params.projectId)!;
+  const taskId = getParamString(req.params.taskId)!;
 
   const comments = await TaskComment.find({
     orgId,
@@ -117,7 +121,9 @@ export const listTaskComments = async (req: Request, res: Response) => {
 };
 
 export const createTaskComment = async (req: Request, res: Response) => {
-  const { orgId, projectId, taskId } = req.params;
+  const orgId = getParamString(req.params.orgId)!;
+  const projectId = getParamString(req.params.projectId)!;
+  const taskId = getParamString(req.params.taskId)!;
   const { content } = req.body;
 
   if (!content?.trim()) {
@@ -175,14 +181,14 @@ export const createTaskComment = async (req: Request, res: Response) => {
 };
 
 export const listOrgActivity = async (req: Request, res: Response) => {
-  const { orgId } = req.params;
+  const orgId = getParamString(req.params.orgId)!;
 
   const activity = await Activity.find({ orgId })
     .populate("actorId", "name email")
     .sort({ createdAt: -1 })
     .limit(100);
 
-    getIO().to(`org:${orgId}`).emit("activity:created");
+  getIO().to(`org:${orgId}`).emit("activity:created");
 
   res.json(activity);
 };
