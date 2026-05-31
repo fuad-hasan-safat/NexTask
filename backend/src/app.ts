@@ -16,12 +16,14 @@ import { apiLimiter, authLimiter } from "./middleware/rateLimiter";
 const app = express();
 
 // Middlewares
-app.use(cors({ origin: true, credentials: true }));
+app.use(
+  cors({ origin: ["https://nex-task-rust.vercel.app"], credentials: true }),
+);
 app.use(morgan("dev"));
 app.use(json());
 
-app.use("/api/auth", authLimiter)
-app.use("/api", apiLimiter)
+app.use("/api/auth", authLimiter);
+app.use("/api", apiLimiter);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/orgs", orgRoutes);
@@ -31,18 +33,17 @@ app.use(
   "/api/orgs/:orgId/projects",
   requireAuth,
   requireOrgMemberMiddleware(),
-  projectRoutes
+  projectRoutes,
 );
 
 app.use(
   "/api/orgs/:orgId/projects/:projectId/tasks",
   requireAuth,
   requireOrgMemberMiddleware(),
-  taskRoutes
+  taskRoutes,
 );
 
 app.use("/api", inviteRoutes);
-
 
 app.get("/", (_req, res) => {
   res.json({ status: "ok" });
