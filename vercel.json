@@ -1,10 +1,13 @@
 {
-  "version": 2,
-  "buildCommand": "cd frontend && npm install && npm run build",
-  "installCommand": "cd frontend && npm install",
-  "outputDirectory": "frontend/dist",
-  "ignoreCommand": "npm run ignore-command",
-  "env": {
-    "VITE_API_BASE_URL": "@vite_api_base_url"
+  "experimentalServices": {
+    "frontend": {
+      "root": "frontend",
+      "routePrefix": "/",
+      "framework": "vite"
+    },
+    "backend": {
+      "root": "backend",
+      "routePrefix": "/_/backend"
+    }
   }
 }
