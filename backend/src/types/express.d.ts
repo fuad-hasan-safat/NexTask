@@ -7,11 +7,3 @@ declare global {
     }
   }
 }
-
-// Helper to safely extract string from req.params or req.query
-export function getParamString(value: string | string[] | undefined): string | undefined {
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-  return value;
-}

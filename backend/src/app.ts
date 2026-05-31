@@ -16,9 +16,7 @@ import { apiLimiter, authLimiter } from "./middleware/rateLimiter";
 const app = express();
 
 // Middlewares
-app.use(
-  cors({ origin: ["https://nex-task-rust.vercel.app"], credentials: true }),
-);
+app.use(cors());
 app.use(morgan("dev"));
 app.use(json());
 

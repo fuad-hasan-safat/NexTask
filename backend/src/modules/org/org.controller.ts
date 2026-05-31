@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getParamString } from "../../types/express";
+import { getParamString } from "../../utils/paramHelper";
 import { createOrgSchema } from "./org.schema";
 import {
   createOrganization,

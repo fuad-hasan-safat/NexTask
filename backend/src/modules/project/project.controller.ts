@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getParamString } from "../../types/express";
+import { getParamString } from "../../utils/paramHelper";
 import { createProjectSchema, updateProjectSchema } from "./project.schema";
 import {
   createProject,

@@ -1,6 +1,10 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "outputDirectory": "frontend/dist"
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "installCommand": "cd frontend && npm install",
+  "outputDirectory": "frontend/dist",
+  "ignoreCommand": "npm run ignore-command",
+  "env": {
+    "VITE_API_BASE_URL": "@vite_api_base_url"
+  }
 }
