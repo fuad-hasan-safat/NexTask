@@ -104,12 +104,12 @@ export default function TaskModal({
     queryKey: ["orgMembers", orgId],
     queryFn: async () => {
       const res = await fetch(
-        `http://localhost:5000/api/orgs/${orgId}/members`,
+        `https://nex-task-chi.vercel.app/api/orgs/${orgId}/members`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-        }
+        },
       );
       return res.json();
     },
@@ -167,7 +167,7 @@ export default function TaskModal({
       const previous = queryClient.getQueryData<Task[]>(tasksQueryKey);
 
       queryClient.setQueryData<Task[] | undefined>(tasksQueryKey, (old) =>
-        old?.filter((t) => t._id !== task!._id)
+        old?.filter((t) => t._id !== task!._id),
       );
 
       return { previous };
@@ -205,7 +205,7 @@ export default function TaskModal({
       description: description.trim() || null,
       status,
       priority,
-      assigneeId: assigneeId
+      assigneeId: assigneeId,
     });
 
     onClose();
@@ -214,7 +214,7 @@ export default function TaskModal({
   const handleDelete = async () => {
     if (
       !confirm(
-        "Are you sure you want to delete this task? This action cannot be undone."
+        "Are you sure you want to delete this task? This action cannot be undone.",
       )
     )
       return;
@@ -260,7 +260,7 @@ export default function TaskModal({
                   <div className="flex items-center gap-3 mt-2">
                     <span
                       className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        status
+                        status,
                       )} text-white`}
                     >
                       {status.replace("_", " ")}
@@ -654,6 +654,6 @@ export default function TaskModal({
         </div>
       </div>
     </>,
-    document.body
+    document.body,
   );
 }

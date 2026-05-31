@@ -77,7 +77,7 @@ MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 
 # Frontend
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=https://nex-task-chi.vercel.app/api
 ```
 
 ## Deployment to Vercel

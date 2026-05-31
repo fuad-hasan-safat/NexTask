@@ -15,9 +15,9 @@ export const useSocket = () => {
     const token = localStorage.getItem("accessToken");
     if (!token) return;
 
-    socket = io("http://localhost:5000", {
+    socket = io("https://nex-task-chi.vercel.app", {
       auth: { token },
-      transports: ["websocket"]
+      transports: ["websocket"],
     });
 
     ref.current = socket;

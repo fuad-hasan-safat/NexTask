@@ -4,12 +4,12 @@ let socket: Socket | null = null;
 
 export const getSocket = () => {
   if (!socket) {
-    socket = io("http://localhost:5000", {
+    socket = io("https://nex-task-chi.vercel.app", {
       auth: {
-        token: localStorage.getItem("accessToken")
+        token: localStorage.getItem("accessToken"),
       },
       transports: ["websocket"],
-      autoConnect: true
+      autoConnect: true,
     });
 
     socket.on("connect", () => {
