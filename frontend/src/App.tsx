@@ -12,6 +12,7 @@ import InviteMemberPage from "./pages/org/InviteMemberPage";
 import MembersPage from "./pages/org/MembersPage";
 import ActivityFeed from "./pages/org/ActivityFeed";
 import NotificationsPage from "./pages/dashboard/NotificationsPage";
+import LandingPage from "./pages/LandingPage";
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const user = useAuthStore((s) => s.user);
@@ -24,6 +25,8 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
+
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
@@ -46,7 +49,7 @@ export default function App() {
 
       </Route>
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

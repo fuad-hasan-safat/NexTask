@@ -15,7 +15,7 @@ export const useSocket = () => {
     const token = localStorage.getItem("accessToken");
     if (!token) return;
 
-    socket = io("https://nex-task-chi.vercel.app", {
+    socket = io(import.meta.env.VITE_SOCKET_URL || "http://localhost:5000", {
       auth: { token },
       transports: ["websocket"],
     });

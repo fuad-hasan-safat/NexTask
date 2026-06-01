@@ -1,12 +1,13 @@
 import { Server as IOServer, Socket } from "socket.io";
 import { verifyAccessToken } from "./utils/jwt";
+import { corsOrigin } from "./config/env";
 
 let io: IOServer | null = null;
 
 export const initSocket = (server: any) => {
   io = new IOServer(server, {
     cors: {
-      origin: true, // restrict in production
+      origin: corsOrigin, // set CORS_ORIGIN env var to restrict in production
       methods: ["GET", "POST"],
     },
   });

@@ -9,6 +9,7 @@ import {
   type TaskComment,
 } from "../api/commentApi";
 import { useCommentRealtime } from "../hooks/useCommentRealTime";
+import axiosClient from "../api/axiosClient";
 
 type Props = {
   open: boolean;
@@ -103,15 +104,8 @@ export default function TaskModal({
   const { data: members = [] } = useQuery({
     queryKey: ["orgMembers", orgId],
     queryFn: async () => {
-      const res = await fetch(
-        `https://nex-task-chi.vercel.app/api/orgs/${orgId}/members`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        },
-      );
-      return res.json();
+      const res = await axiosClient.get(`/orgs/${orgId}/members`);
+      return res.data;
     },
     enabled: !!orgId,
   });

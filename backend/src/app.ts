@@ -12,11 +12,12 @@ import taskRoutes from "./modules/tasks/task.routes";
 import inviteRoutes from "./modules/invite/invite.route";
 import notificationRoutes from "./modules/notification/notification.routes";
 import { apiLimiter, authLimiter } from "./middleware/rateLimiter";
+import { corsOrigin } from "./config/env";
 
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(cors({ origin: corsOrigin }));
 app.use(morgan("dev"));
 app.use(json());
 

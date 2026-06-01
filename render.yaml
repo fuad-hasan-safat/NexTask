@@ -1,0 +1,52 @@
+# Render Blueprint — deploys the NexTask monorepo as two services.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# After pushing this file to GitHub:
+#   1. Render Dashboard → New → Blueprint → pick this repo.
+#   2. Render reads this file and creates both services below.
+#   3. Fill in the env vars marked `sync: false` (see notes at the bottom).
+
+services:
+  # ── Backend: Express + Socket.io (long-running web service) ──
+  - type: web
+    name: nextask-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    # --include=dev forces devDependencies (@types/*, typescript) to install
+    # even though NODE_ENV=production is set, since they're needed for `tsc`.
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Render assigns PORT automatically; the app reads process.env.PORT.
+      - key: MONGO_URI
+        sync: false # set in dashboard (MongoDB Atlas connection string)
+      - key: JWT_ACCESS_SECRET
+        sync: false # set in dashboard (a long random string)
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 24h
+      - key: CORS_ORIGIN
+        sync: false # set to the frontend URL, e.g. https://nextask-frontend.onrender.com
+
+  # ── Frontend: React + Vite (static site) ──
+  - type: web
+    name: nextask-frontend
+    runtime: static
+    rootDir: frontend
+    # --include=dev ensures vite/typescript (devDependencies) install for the build.
+    buildCommand: npm install --include=dev && npm run build
+    staticPublishPath: dist
+    # SPA fallback so client-side routes (react-router) resolve to index.html.
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # Vite inlines these at BUILD time. Point them at the backend's Render URL.
+      - key: VITE_API_URL
+        sync: false # e.g. https://nextask-backend.onrender.com/api
+      - key: VITE_SOCKET_URL
+        sync: false # e.g. https://nextask-backend.onrender.com
