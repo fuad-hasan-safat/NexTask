@@ -28,15 +28,15 @@ const STATUS_OPTIONS: TaskStatus[] = [
 
 const PRIORITY_OPTIONS: TaskPriority[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
 
-// Helper function for priority colors
+// Helper function for priority colors (left accent strip on the modal header)
 const getPriorityColor = (priority: TaskPriority) => {
   switch (priority) {
     case "LOW":
-      return "border-l-emerald-500 bg-emerald-500/10";
+      return "border-l-slate-500 bg-slate-500/10";
     case "MEDIUM":
-      return "border-l-blue-500 bg-blue-500/10";
-    case "HIGH":
       return "border-l-amber-500 bg-amber-500/10";
+    case "HIGH":
+      return "border-l-orange-500 bg-orange-500/10";
     case "URGENT":
       return "border-l-rose-500 bg-rose-500/10";
     default:
@@ -44,19 +44,19 @@ const getPriorityColor = (priority: TaskPriority) => {
   }
 };
 
-// Helper function for status colors
+// Helper function for status colors (matches the board column dots)
 const getStatusColor = (status: TaskStatus) => {
   switch (status) {
     case "BACKLOG":
-      return "bg-slate-700";
+      return "bg-slate-600";
     case "IN_PROGRESS":
-      return "bg-blue-600";
+      return "bg-sky-600";
     case "REVIEW":
-      return "bg-purple-600";
+      return "bg-violet-600";
     case "DONE":
       return "bg-emerald-600";
     default:
-      return "bg-slate-700";
+      return "bg-slate-600";
   }
 };
 
@@ -109,8 +109,6 @@ export default function TaskModal({
     },
     enabled: !!orgId,
   });
-
-  console.log({ members });
 
   /* ------------------ mutations ------------------ */
   const { mutateAsync: updateTask, isPending: isUpdating } = useMutation({
@@ -235,7 +233,7 @@ export default function TaskModal({
       <div className="fixed inset-0 z-50 overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4">
           <div
-            className="relative w-full max-w-3xl bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl shadow-2xl border border-gray-800 overflow-hidden"
+            className="relative w-full max-w-3xl bg-gradient-to-br from-slate-900 to-slate-950 rounded-2xl shadow-2xl border border-slate-800 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -245,7 +243,7 @@ export default function TaskModal({
               <div className="flex justify-between items-start">
                 <div className="flex-1 min-w-0">
                   <input
-                    className="w-full bg-transparent text-xl font-semibold text-white placeholder:text-gray-400 focus:outline-none"
+                    className="w-full bg-transparent text-xl font-semibold text-white placeholder:text-slate-400 focus:outline-none"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     disabled={disabled}
@@ -259,7 +257,7 @@ export default function TaskModal({
                     >
                       {status.replace("_", " ")}
                     </span>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm text-slate-400">
                       {new Date(task.createdAt).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -271,7 +269,7 @@ export default function TaskModal({
                 <button
                   onClick={() => !disabled && onClose()}
                   disabled={disabled}
-                  className="ml-4 p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                  className="ml-4 p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
                 >
                   <svg
                     className="w-5 h-5"
@@ -294,18 +292,18 @@ export default function TaskModal({
             <div className="p-6 space-y-6">
               {/* Description Section */}
               <div className="space-y-3">
-                <label className="text-sm font-medium text-gray-300">
+                <label className="text-sm font-medium text-slate-300">
                   Description
                 </label>
                 <textarea
-                  className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-gray-200 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-h-[120px]"
+                  className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all min-h-[120px]"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   disabled={disabled}
                   placeholder="Add a detailed description..."
                 />
                 <select
-                  className="mt-2 w-full bg-gray-800 border border-gray-700 text-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-2 w-full bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   value={assigneeId ?? ""}
                   onChange={(e) => setAssigneeId(e.target.value || null)}
                 >
@@ -321,7 +319,7 @@ export default function TaskModal({
               {/* Quick Controls */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-gray-300">
+                  <label className="text-sm font-medium text-slate-300">
                     Status
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -334,7 +332,7 @@ export default function TaskModal({
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                           status === s
                             ? `${getStatusColor(s)} text-white`
-                            : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                            : "bg-slate-800 text-slate-300 hover:bg-slate-700"
                         }`}
                       >
                         {s.replace("_", " ")}
@@ -344,7 +342,7 @@ export default function TaskModal({
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-gray-300">
+                  <label className="text-sm font-medium text-slate-300">
                     Priority
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -358,7 +356,7 @@ export default function TaskModal({
                           priority === p
                             ? getPriorityColor(p) +
                               " text-white border-transparent"
-                            : "border-gray-700 text-gray-300 hover:bg-gray-800"
+                            : "border-slate-700 text-slate-300 hover:bg-slate-800"
                         }`}
                       >
                         {p}
@@ -371,10 +369,10 @@ export default function TaskModal({
               {/* Comments Section */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-gray-300">
+                  <h3 className="text-sm font-semibold text-slate-300">
                     Comments
                   </h3>
-                  <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">
+                  <span className="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">
                     {comments?.length || 0} comments
                   </span>
                 </div>
@@ -384,18 +382,18 @@ export default function TaskModal({
                   {comments?.map((c: TaskComment) => (
                     <div
                       key={c._id}
-                      className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
+                      className="bg-slate-800/50 rounded-xl p-4 border border-slate-700"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-xs font-semibold">
+                          <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-xs font-semibold">
                             {c.authorId.name?.charAt(0) || "U"}
                           </div>
                           <span className="text-sm font-medium text-white">
                             {c.authorId.name}
                           </span>
                         </div>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-slate-400">
                           {new Date(c.createdAt).toLocaleDateString("en-US", {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -404,12 +402,12 @@ export default function TaskModal({
                           })}
                         </span>
                       </div>
-                      <p className="text-gray-300 text-sm pl-10">{c.content}</p>
+                      <p className="text-slate-300 text-sm pl-10">{c.content}</p>
                     </div>
                   ))}
 
                   {!comments?.length && (
-                    <div className="text-center py-8 text-gray-500 text-sm">
+                    <div className="text-center py-8 text-slate-500 text-sm">
                       <svg
                         className="w-12 h-12 mx-auto mb-3 opacity-50"
                         fill="none"
@@ -431,7 +429,7 @@ export default function TaskModal({
                 {/* Add Comment Form */}
                 <form onSubmit={handleAddComment} className="space-y-3">
                   <textarea
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-gray-200 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-h-[80px] text-sm resize-none"
+                    className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all min-h-[80px] text-sm resize-none"
                     placeholder="Write a comment..."
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
@@ -442,7 +440,7 @@ export default function TaskModal({
                     <button
                       type="submit"
                       disabled={isCommenting || !newComment.trim()}
-                      className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                      className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl text-sm font-medium hover:from-indigo-700 hover:to-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                     >
                       {isCommenting ? (
                         <>
@@ -513,8 +511,8 @@ export default function TaskModal({
               )}
 
               {/* Action Buttons */}
-              <div className="flex justify-between items-center pt-6 border-t border-gray-800">
-                <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="flex justify-between items-center pt-6 border-t border-slate-800">
+                <div className="flex items-center gap-2 text-sm text-slate-400">
                   <svg
                     className="w-4 h-4"
                     fill="none"
@@ -539,7 +537,7 @@ export default function TaskModal({
                     type="button"
                     onClick={handleDelete}
                     disabled={disabled}
-                    className="px-5 py-2.5 border border-gray-700 text-rose-400 rounded-xl text-sm font-medium hover:bg-rose-500/10 hover:border-rose-500/50 disabled:opacity-50 transition-all flex items-center gap-2"
+                    className="px-5 py-2.5 border border-slate-700 text-rose-400 rounded-xl text-sm font-medium hover:bg-rose-500/10 hover:border-rose-500/50 disabled:opacity-50 transition-all flex items-center gap-2"
                   >
                     {isDeleting ? (
                       <>
@@ -588,7 +586,7 @@ export default function TaskModal({
                       type="button"
                       onClick={onClose}
                       disabled={disabled}
-                      className="px-5 py-2.5 border border-gray-700 text-gray-300 rounded-xl text-sm font-medium hover:bg-gray-800 disabled:opacity-50 transition-all"
+                      className="px-5 py-2.5 border border-slate-700 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-800 disabled:opacity-50 transition-all"
                     >
                       Cancel
                     </button>
@@ -596,7 +594,7 @@ export default function TaskModal({
                       type="submit"
                       onClick={handleSave}
                       disabled={disabled}
-                      className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
+                      className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl text-sm font-medium hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
                     >
                       {isUpdating ? (
                         <>

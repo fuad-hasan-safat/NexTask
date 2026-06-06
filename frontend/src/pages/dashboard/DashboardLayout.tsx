@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Outlet, NavLink, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/auth.store";
 import { useOrgStore } from "../../store/org.store";
@@ -11,6 +12,18 @@ import { useOrgPermissions } from "../../hooks/useOrgPermissions";
 const BoltIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className={className}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12l1-8.5Z" />
+  </svg>
+);
+
+const MenuIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+);
+
+const CloseIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
   </svg>
 );
 
@@ -32,20 +45,42 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
       : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200",
   ].join(" ");
 
+const mobileNavLinkClass = ({ isActive }: { isActive: boolean }) =>
+  [
+    "block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+    isActive
+      ? "bg-indigo-500/15 text-indigo-300"
+      : "text-slate-300 hover:bg-slate-800/60 hover:text-white",
+  ].join(" ");
+
 export default function DashboardLayout() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const orgId = useOrgStore((s) => s.orgId);
   useNotificationRealtime();
   const perms = useOrgPermissions();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const closeMobile = () => setMobileOpen(false);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 antialiased selection:bg-indigo-500/30">
       {/* ============================ HEADER ============================ */}
       <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/70 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           {/* Brand + nav */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 lg:gap-6">
+            {/* Mobile menu toggle */}
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              className="rounded-md p-1.5 text-slate-300 transition-colors hover:bg-slate-800/60 hover:text-white md:hidden"
+              aria-label="Toggle navigation"
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
+            </button>
+
             <Link to="/" className="flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-500/30">
                 <BoltIcon className="h-5 w-5 text-white" />
@@ -77,8 +112,10 @@ export default function DashboardLayout() {
           </div>
 
           {/* Org selector + user */}
-          <div className="flex items-center gap-4">
-            <OrgSelector />
+          <div className="flex items-center gap-2 sm:gap-4">
+            <div className="hidden sm:block">
+              <OrgSelector />
+            </div>
 
             <div className="hidden h-8 w-px bg-slate-800 sm:block" />
 
@@ -108,10 +145,40 @@ export default function DashboardLayout() {
             </button>
           </div>
         </div>
+
+        {/* Mobile nav drawer */}
+        {mobileOpen && (
+          <div className="border-t border-slate-800/80 bg-slate-950/95 px-4 py-3 md:hidden">
+            <div className="mb-3 sm:hidden">
+              <OrgSelector />
+            </div>
+            {orgId && (
+              <nav className="space-y-1">
+                <NavLink to="/app" end className={mobileNavLinkClass} onClick={closeMobile}>
+                  Projects
+                </NavLink>
+                <NavLink to="/app/activity" className={mobileNavLinkClass} onClick={closeMobile}>
+                  Activity
+                </NavLink>
+                <NavLink to="/app/invites" className={mobileNavLinkClass} onClick={closeMobile}>
+                  Invites
+                </NavLink>
+                {perms?.inviteMembers && (
+                  <NavLink to="/app/org/invite" className={mobileNavLinkClass} onClick={closeMobile}>
+                    Add Member
+                  </NavLink>
+                )}
+                <NavLink to="/app/org/members" className={mobileNavLinkClass} onClick={closeMobile}>
+                  Members
+                </NavLink>
+              </nav>
+            )}
+          </div>
+        )}
       </header>
 
       {/* ============================ MAIN ============================ */}
-      <main className="mx-auto max-w-7xl px-6 py-6">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         {!orgId && (
           <div className="mb-6 flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
             <span className="flex h-2 w-2 shrink-0 rounded-full bg-amber-400" />
