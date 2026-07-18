@@ -48,6 +48,7 @@ export default function ProjectBoardPage() {
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const {
     data: project,
@@ -83,7 +84,21 @@ export default function ProjectBoardPage() {
   const { mutate: moveTask } = useMutation({
     mutationFn: (payload: { taskId: string; status: TaskStatus }) =>
       updateTaskStatusApi(orgId!, projectId!, payload.taskId, payload.status),
-    onSuccess: () => {
+    // The optimistic move is applied synchronously in handleDragEnd (dnd needs
+    // the list updated within onDragEnd). Here we only prevent an in-flight
+    // refetch from clobbering it.
+    onMutate: () => {
+      queryClient.cancelQueries({ queryKey: ["tasks", orgId, projectId] });
+    },
+    // Reconcile with the server response surgically instead of refetching the
+    // whole list, so the board doesn't re-render (and repaint) after the drop.
+    onSuccess: (updatedTask) => {
+      queryClient.setQueryData<Task[]>(["tasks", orgId, projectId], (old) =>
+        (old ?? []).map((t) => (t._id === updatedTask._id ? updatedTask : t))
+      );
+    },
+    // If the move failed, refetch to restore the true server state.
+    onError: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks", orgId, projectId] });
     },
   });
@@ -124,6 +139,8 @@ export default function ProjectBoardPage() {
   };
 
   const handleDragEnd = (result: DropResult) => {
+    setIsDragging(false);
+
     if (!result.destination) return;
 
     const sourceStatus = result.source.droppableId as TaskStatus;
@@ -134,6 +151,14 @@ export default function ProjectBoardPage() {
     const sourceTasks = tasksByStatus[sourceStatus];
     const movedTask = sourceTasks[result.source.index];
     if (!movedTask) return;
+
+    // Apply the move synchronously so the card lands in the new column within
+    // the same render pass dnd commits the drop — no snap-back/jump flicker.
+    queryClient.setQueryData<Task[]>(["tasks", orgId, projectId], (old) =>
+      (old ?? []).map((t) =>
+        t._id === movedTask._id ? { ...t, status: destStatus } : t
+      )
+    );
 
     moveTask({ taskId: movedTask._id, status: destStatus });
   };
@@ -204,7 +229,10 @@ export default function ProjectBoardPage() {
           ))}
         </div>
       ) : (
-        <DragDropContext onDragEnd={handleDragEnd}>
+        <DragDropContext
+          onDragStart={() => setIsDragging(true)}
+          onDragEnd={handleDragEnd}
+        >
           {/* Horizontal scroll on small screens, 4-up grid on large */}
           <div className="-mx-1 flex snap-x gap-4 overflow-x-auto px-1 pb-2 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 lg:pb-0">
             {STATUS_COLUMNS.map((col) => (
@@ -213,10 +241,10 @@ export default function ProjectBoardPage() {
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`flex w-[80vw] shrink-0 snap-start flex-col rounded-xl border p-3 transition-colors sm:w-72 lg:w-auto ${
+                    className={`flex w-[80vw] shrink-0 snap-start flex-col rounded-xl border border-slate-800 p-3 sm:w-72 lg:w-auto ${
                       snapshot.isDraggingOver
-                        ? "border-indigo-500/50 bg-slate-900"
-                        : "border-slate-800 bg-slate-900/50"
+                        ? "bg-slate-900 ring-2 ring-inset ring-indigo-500/50"
+                        : "bg-slate-900/50"
                     }`}
                   >
                     <div className="mb-3 flex items-center gap-2">
@@ -281,11 +309,13 @@ export default function ProjectBoardPage() {
                       ))}
                       {provided.placeholder}
 
-                      {tasksByStatus[col.id].length === 0 && (
-                        <div className="rounded-lg border border-dashed border-slate-800 px-3 py-6 text-center text-[11px] text-slate-600">
-                          No tasks
-                        </div>
-                      )}
+                      {tasksByStatus[col.id].length === 0 &&
+                        !isDragging &&
+                        !snapshot.isDraggingOver && (
+                          <div className="rounded-lg border border-dashed border-slate-800 px-3 py-6 text-center text-[11px] text-slate-600">
+                            No tasks
+                          </div>
+                        )}
                     </div>
                   </div>
                 )}
