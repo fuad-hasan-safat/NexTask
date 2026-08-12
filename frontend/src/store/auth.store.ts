@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { getRefreshToken, clearTokens } from "../lib/tokens";
+import { logoutApi } from "../api/authApi";
 
 interface User {
   id: string;
@@ -19,7 +21,13 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       setUser: (user) => set({ user }),
       logout: () => {
-        localStorage.removeItem("accessToken");
+        // Best-effort server-side revocation of the refresh token; the local
+        // session is cleared regardless of whether the request succeeds.
+        const refreshToken = getRefreshToken();
+        if (refreshToken) {
+          logoutApi(refreshToken).catch(() => {});
+        }
+        clearTokens();
         set({ user: null });
       }
     }),

@@ -1,4 +1,5 @@
 import { io, Socket } from "socket.io-client";
+import { getAccessToken } from "./tokens";
 
 let socket: Socket | null = null;
 
@@ -6,7 +7,7 @@ export const getSocket = () => {
   if (!socket) {
     socket = io(import.meta.env.VITE_SOCKET_URL || "http://localhost:5000", {
       auth: {
-        token: localStorage.getItem("accessToken"),
+        token: getAccessToken(),
       },
       transports: ["websocket"],
       autoConnect: true,

@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { registerApi } from "../../api/authApi";
 import { useAuthStore } from "../../store/auth.store";
+import { setTokens } from "../../lib/tokens";
 
 const BoltIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className={className}>
@@ -19,7 +20,7 @@ export default function RegisterPage() {
   const { mutate, isPending, error } = useMutation({
     mutationFn: registerApi,
     onSuccess: (data) => {
-      localStorage.setItem("accessToken", data.accessToken);
+      setTokens(data.accessToken, data.refreshToken);
       setUser(data.user);
       navigate("/app", { replace: true });
     },
